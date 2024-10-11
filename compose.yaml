@@ -1,0 +1,7 @@
+services:
+  lstid_detector:
+    image: lstid_detector
+    build: .
+    container_name: lstid_detector_container
+    volumes:
+      - ../hamsci_LSTID_detection:/hamsci_LSTID_detection

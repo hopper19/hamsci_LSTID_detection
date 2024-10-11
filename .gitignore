@@ -167,3 +167,4 @@ cython_debug/
 *.png
 .DS_Store
 raw_data/
+cache/
