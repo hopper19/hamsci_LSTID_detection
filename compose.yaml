@@ -4,4 +4,9 @@ services:
     build: .
     container_name: lstid_detector_container
     volumes:
-      - ../hamsci_LSTID_detection:/hamsci_LSTID_detection
+      - ./output:/output
+      - ./raw_data:/raw_data
+      - lstid_cache:/cache
+
+volumes:
+  lstid_cache:

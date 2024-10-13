@@ -13,9 +13,6 @@ raw_processing_input_dir = 'raw_data'
 datasets                = ['PSK','RBN','WSPR']
 
 clear_cache              = True
-cache_dir                = 'cache'
-heatmap_csv_dir          = os.path.join(cache_dir,'heatmaps')
-edge_dir                 = os.path.join(cache_dir,'edge_detect')
 output_dir               = 'output'
 
 multiproc                = True # Use multiprocessing
@@ -26,8 +23,8 @@ lstid_T_hr_lim           = (1, 4.5) # Bandpass filter cutoffs
 
 region                   = 'NA' # 'NA' --> North America
 freq_str                 = '14 MHz'
-sDate                    = datetime.datetime(2018,11,1)
-eDate                    = datetime.datetime(2019,4,30)
+sDate                    = datetime.datetime(2018,11,2)
+eDate                    = datetime.datetime(2018,11,2)
 
 # NO PARAMETERS BELOW THIS LINE ################################################
 def prep_dirs(*dirs,clear_cache=False):
@@ -40,7 +37,16 @@ def prep_dirs(*dirs,clear_cache=False):
     """
     for dr in dirs:
         if clear_cache and os.path.exists(dr):
-            shutil.rmtree(dr)
+            # Only remove files within the directory
+            for filename in os.listdir(dr):
+                file_path = os.path.join(dr, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                except Exception as e:
+                    print(f'Failed to delete {file_path}. Reason: {e}')
 
     for dr in dirs:
         if not os.path.exists(dr):
@@ -84,13 +90,17 @@ def runEdgeDetectAndPlot(edgeDetectDict):
             pickle.dump(result,fl)
 
     if result is None: # Missing Data Case
-       return 
+        return 
     
     result      = LSTID.plotting.curve_combo_plot(result)
     return result
 
 tic = datetime.datetime.now()
 
+
+cache_dir       = 'cache'
+heatmap_csv_dir = os.path.join(cache_dir,'heatmaps')
+edge_dir        = os.path.join(cache_dir,'edge_detect')
 prep_dirs(cache_dir,heatmap_csv_dir,edge_dir,output_dir,clear_cache=clear_cache)
 dates   = get_dates(sDate,eDate)
 
